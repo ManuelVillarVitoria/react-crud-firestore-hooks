@@ -4,18 +4,19 @@ import shortid from 'shortid';// npm i shortid (libreria de generador de ID)
 
 function App() {
 
-const [tarea, setTarea] = React.useState('');
-const [tareas, setTareas] = React.useState([]);
-const [modoEdicion, setModoEdicion] = React.useState(false);
+const [tarea, setTarea] = React.useState('')
+const [tareas, setTareas] = React.useState([])
+const [modoEdicion, setModoEdicion] = React.useState(false)
+const [id, setId] = React.useState('')
 
 
 const agregarTarea = e => {
   e.preventDefault(); 
   if(!tarea.trim()){
     //console.log('elemento vacío')
+    return
   }
     //console.log(tarea)
-
     //Añadir nuevas tareas a la existente
     setTareas([
       ...tareas,
@@ -32,12 +33,26 @@ const eliminarTarea = id => {
   setTareas(arrayFiltrado)
 }
 
-const editarTarea = item => {
+const editar = item => {
   //console.log(item)
   setModoEdicion(true)
   //pasamos el contenido de la tarea al formulario de editar tarea, cuando pulsamos editar
   setTarea(item.nombreTarea)
+  setId(item.id)
 }
+
+const editarTarea = e => {
+  e.preventDefault(); 
+  if(!tarea.trim()) return
+    //Devolver solo las tareas modificadas al nuevo array, si el ID de dichas tareas coinciden 
+    //con la tarea que clickamos para editar,el resto de tareas devolverlas tal como estaban.
+    const arrayEditado = tareas.map(item => item.id === id ? {id:id, nombreTarea:tarea} : item)
+
+    setTareas(arrayEditado)
+    setModoEdicion(false)
+    setTarea('')
+    setId('')
+  }
 
   return (
     <div className="container mt-5">
@@ -57,7 +72,7 @@ const editarTarea = item => {
                   >Eliminar</button>
                   <button 
                     className="btn btn-warning btn-sm float-right"
-                    onClick={() => editarTarea(item)}
+                    onClick={() => editar(item)}
                   >Editar</button>
                 </li>
               ))
@@ -74,7 +89,7 @@ const editarTarea = item => {
           </h4>
 
           <form 
-            onSubmit={agregarTarea}
+            onSubmit={modoEdicion ? editarTarea : agregarTarea}
           >
             <input 
               type="text"

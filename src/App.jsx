@@ -4,10 +4,9 @@ import shortid from 'shortid';// npm i shortid (libreria de generador de ID)
 
 function App() {
 
-//State para guardar la tarea
 const [tarea, setTarea] = React.useState('');
-//State para guardar nuevas tareas a la existente
 const [tareas, setTareas] = React.useState([]);
+const [modoEdicion, setModoEdicion] = React.useState(false);
 
 
 const agregarTarea = e => {
@@ -33,6 +32,12 @@ const eliminarTarea = id => {
   setTareas(arrayFiltrado)
 }
 
+const editarTarea = item => {
+  //console.log(item)
+  setModoEdicion(true)
+  //pasamos el contenido de la tarea al formulario de editar tarea, cuando pulsamos editar
+  setTarea(item.nombreTarea)
+}
 
   return (
     <div className="container mt-5">
@@ -50,7 +55,10 @@ const eliminarTarea = id => {
                     className="btn btn-danger btn-sm float-right mx-2"
                     onClick={() => eliminarTarea(item.id)}
                   >Eliminar</button>
-                  <button className="btn btn-warning btn-sm float-right">Editar</button>
+                  <button 
+                    className="btn btn-warning btn-sm float-right"
+                    onClick={() => editarTarea(item)}
+                  >Editar</button>
                 </li>
               ))
               }
@@ -59,9 +67,15 @@ const eliminarTarea = id => {
         </div>
 
         <div className="col-4">
-          <h4 className="text-center">Formulario</h4>
+          <h4 className="text-center">
+            {
+              modoEdicion ? 'Editar Tarea' : 'Agregar Tarea'
+            }
+          </h4>
 
-          <form onSubmit={agregarTarea}>
+          <form 
+            onSubmit={agregarTarea}
+          >
             <input 
               type="text"
               className="form-constrol mb-2"
@@ -69,10 +83,20 @@ const eliminarTarea = id => {
               onChange={e => setTarea(e.target.value)}
               value={tarea}
             />
-            <button  
-              type="submit"
-              className="btn btn-dark btn-block"
-            >Agregar</button> 
+
+            {
+              modoEdicion ? (
+                <button  
+                  type="submit"
+                  className="btn btn-warning btn-block"
+                >Editar</button> 
+              ) : (
+                <button  
+                  type="submit"
+                  className="btn btn-dark btn-block"
+                >Agregar</button> 
+              )
+            }
           </form>
 
         </div>

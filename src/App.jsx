@@ -13,9 +13,9 @@ const [tareas, setTareas] = React.useState([]);
 const agregarTarea = e => {
   e.preventDefault(); 
   if(!tarea.trim()){
-    console.log('elemento vacío')
+    //console.log('elemento vacío')
   }
-    console.log(tarea)
+    //console.log(tarea)
 
     //Añadir nuevas tareas a la existente
     setTareas([
@@ -34,17 +34,23 @@ const agregarTarea = e => {
       <div className="row">
         <div className="col-8">
           <h4 className="text-center">Lista de Tareas</h4>
+
             <ul className="list-group">
-              <li className="list-group-item">
-                <span className="lead">Nombre de la tarea</span>
-                <button className="btn btn-danger btn-sm float-right mx-2">Eliminar</button>
-                <button className="btn btn-warning btn-sm float-right">Editar</button>
-              </li>
+              {tareas.map(item => (
+                <li className="list-group-item" key={item.id}>
+                  <span className="lead">{item.nombreTarea}</span>
+                  <button className="btn btn-danger btn-sm float-right mx-2">Eliminar</button>
+                  <button className="btn btn-warning btn-sm float-right">Editar</button>
+                </li>
+              ))
+              }
             </ul>
+
         </div>
 
         <div className="col-4">
           <h4 className="text-center">Formulario</h4>
+
           <form onSubmit={agregarTarea}>
             <input 
               type="text"
@@ -58,6 +64,7 @@ const agregarTarea = e => {
               className="btn btn-dark btn-block"
             >Agregar</button> 
           </form>
+
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {firebase} from './firebase';
-import shortid from 'shortid';// npm i shortid (libreria de generador de ID)
+//import shortid from 'shortid';// npm i shortid (libreria de generador de ID)
 
 
 function App() {
@@ -33,7 +33,7 @@ const [error, setError] = useState(null)
 }, [])
 
 
-const agregarTarea = e => {
+const agregarTarea = async (e) => {
   e.preventDefault();
 
   if( !tarea.trim() ) {
@@ -44,35 +44,56 @@ const agregarTarea = e => {
       setError(' El texto debe comprender entre 3 y 32 carácteres. ')
       return
     }
+
+    try {
+      const db = firebase.firestore()
+      const nuevaTarea = {
+        name: tarea,
+        fecha: Date.now()
+      }
+      const data = await db.collection('tareas').add(nuevaTarea)
   
     //console.log(tarea)
     //Añadir nuevas tareas a la existente
     setTareas([
       ...tareas,
-      {id: shortid.generate(), nombreTarea: tarea}
+      //{id: shortid.generate(), nombreTarea: tarea}
+      {...nuevaTarea, id: data.id}
     ])
 
     //Limpiar el formulario
     setTarea('')
     //Limpiar mensaje de error
     setError(null)
+      
+    }catch (error) {
+      console.log(error)
+    }
+    console.log(tarea)
 }
 
-const eliminarTarea = id => {
+const eliminarTarea = async(id) => {
+  try {
+    const db = firebase.firestore()
+    await db.collection('tareas').doc(id).delete()
   //console.log(id);
   const arrayFiltrado = tareas.filter(item => item.id !== id)
   setTareas(arrayFiltrado)
+
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 const editar = item => {
   //console.log(item)
   setModoEdicion(true)
   //pasamos el contenido de la tarea al formulario de editar tarea, cuando pulsamos editar
-  setTarea(item.nombreTarea)
+  setTarea(item.name)
   setId(item.id)
 }
 
-const editarTarea = e => {
+const editarTarea = async(e) => {
     e.preventDefault(); 
     if( !tarea.trim() ){
       //console.log('Elemento Vacío')
@@ -83,20 +104,30 @@ const editarTarea = e => {
       return
     }
     
+    try {
+      const db = firebase.firestore()
+      await db.collection('tareas').doc(id).update({
+        name: tarea
+      })
+    
     //Devolver solo las tareas modificadas al nuevo array, si el ID de dichas tareas coinciden 
     //con la tarea que clickamos para editar,el resto de tareas devolverlas tal como estaban.
-    const arrayEditado = tareas.map(item => item.id === id ? {id:id, nombreTarea:tarea} : item)
+    const arrayEditado = tareas.map(item => item.id === id ? {id:id,fecha: item.fecha, name:tarea} : item)
 
     setTareas(arrayEditado)
     setModoEdicion(false)
     setTarea('')
     setId('')
     setError(null)
+
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (
     <div className="container mt-5">
-      <h1 className="text-center">CRUD Simple con Hooks</h1>
+      <h1 className="text-center">CRUD con Firebase & Hooks</h1>
       <hr></hr>
       <div className="row">
         <div className="col-8">
@@ -108,7 +139,7 @@ const editarTarea = e => {
               ) : (
                     tareas.map(item => (
                       <li className="list-group-item" key={item.id}>
-                        <span className="lead">{item.nombreTarea}</span>
+                        <span className="lead">{item.name}</span>
 
                         <button 
                           className="btn btn-danger btn-sm float-right mx-2"

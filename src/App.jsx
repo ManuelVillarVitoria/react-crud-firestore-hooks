@@ -1,14 +1,36 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
+import {firebase} from './firebase';
 import shortid from 'shortid';// npm i shortid (libreria de generador de ID)
 
 
 function App() {
 
-const [tarea, setTarea] = React.useState('')
-const [tareas, setTareas] = React.useState([])
-const [modoEdicion, setModoEdicion] = React.useState(false)
-const [id, setId] = React.useState('')
-const [error, setError] = React.useState(null)
+const [tarea, setTarea] = useState('')
+const [tareas, setTareas] = useState([])
+const [modoEdicion, setModoEdicion] = useState(false)
+const [id, setId] = useState('')
+const [error, setError] = useState(null)
+
+
+ useEffect(() => {
+  const obtenerDatos = async () => {
+    try {
+      const db = firebase.firestore()
+      const data = await db.collection('tareas').get()
+      //console.log(data.docs)
+      //...doc.data(). Con esto sacamos a fuera los datos del segundo objeto, y los colocamos en un array simple de objetos.
+      //No colocamos await, porque no hace efecto en esta operación.
+      const arrayData = data.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      console.log(arrayData)
+      setTareas(arrayData)
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  obtenerDatos()
+}, [])
 
 
 const agregarTarea = e => {
